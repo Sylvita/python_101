@@ -1,0 +1,52 @@
+import sqlite3
+import instrumentos_sql1
+
+connection = sqlite3.connect("instrumentos.db")
+cursor = connection.cursor()
+
+if __name__ == "__main__":
+    print("Bienvenido al nuestra tienda de instrumentos")  
+    sistem = instrumentos_sql1.INSTRUMENTOS(6, "Guitarra", "Cuerdas de Acero", 200)
+
+
+    try:
+        sql = """ UPDATE INSTRUMENTOS SET Precio = ? WHERE ID = ?"""
+        cursor.execute(sql, (14000, 5))  
+        connection.commit()
+        print("Registro actualizado correctamente.")
+
+    except sqlite3.Error as e:
+        print(f"Error al actualizar registro: {e}")
+    
+    try:
+        sql = "SELECT * FROM INSTRUMENTOS"
+        filas = cursor.fetchall()
+        instrumentos = [instrumentos_sql1.INSTRUMENTOS(*f) for f in filas] 
+
+        for inst in instrumentos:
+            print(inst.ID)
+            print(inst.Name)
+            print(inst.Caracteristicas)
+            print(inst.Precio)
+    
+        connection.commit()
+        print("Updated.")
+
+    except sqlite3.Error as e:
+        print(f"Error de registro: {e}")
+   
+    connection.close()
+
+   
+    try:
+        connection = sqlite3.connect("instrumentos.db")
+        cursor = connection.cursor()
+        with open('dump.sql', 'w') as f:
+            for line in connection.iterdump():
+                f.write('%s\n' % line)
+        print("Archivo dump.sql generado correctamente.")
+    except sqlite3.Error as e:
+        print(f"Error al generar dump.sql: {e}")
+    finally:
+        if connection:
+            connection.close()
